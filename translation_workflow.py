@@ -135,7 +135,7 @@ Please provide a comprehensive review of the translation, considering:
 4. Cultural appropriateness
 5. Areas for potential improvement
 
-At least one error has been introduced in the translation. Identify and correct it.
+One or more errors may have been introduced in the translation. Identify and correct it.
 
 Compare:
 
