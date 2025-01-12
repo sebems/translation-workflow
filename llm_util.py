@@ -34,7 +34,7 @@ def get_and_show_llm_response(prompt: str, key: str, step_name: str, editable: b
         st.session_state[key + "_prompt"] = prompt
     container.empty()
     with container:
-        if editable and st.checkbox(f"Edit {step_name}", key=key + "_edit"):
+        if editable:# and st.checkbox(f"Edit {step_name}", key=key + "_edit"):
             result = st.text_area(step_name, result, height=200, key=key)
         else:
             st.text(result)
