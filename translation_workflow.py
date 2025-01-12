@@ -15,20 +15,20 @@ def extract_text_inside_tags(text: str, tag: str) -> str:
     return text[start + len(start_tag):end].strip()
 
 
-lang = st.text_input("Target Language", "French")
-is_song = st.checkbox("Is this a song?")
-
-st.header("Phase 1: Source Text Input and Analysis")
-
-# Source text input
-source_text = st.text_area(
-    "Original Lyrics" if is_song else "Original Text",
-    height=200
-)
+with st.form("input_form"):
+    lang = st.text_input("Target Language", "French")
+    is_song = st.checkbox("Is this a song?")
+    source_text = st.text_area(
+        "Original Lyrics" if is_song else "Original Text",
+        key="source_text",
+        height=200
+    )
+    st.form_submit_button("Start Translation Workflow")
 
 if not source_text:
     st.stop()
 
+st.header("Phase 1: Analysis")
 #
 # Prompts
 #
