@@ -15,77 +15,93 @@ def extract_text_inside_tags(text: str, tag: str) -> str:
     return text[start + len(start_tag):end].strip()
 
 
-lang = st.text_input("Target Language", "Spanish")
+lang = st.text_input("Target Language", "French")
+is_song = st.checkbox("Is this a song?")
 
 st.header("Phase 1: Source Text Input and Analysis")
 
 # Source text input
 source_text = st.text_area(
-    "Original Lyrics",
+    "Original Lyrics" if is_song else "Original Text",
     height=200
 )
 
 if not source_text:
     st.stop()
 
+#
+# Prompts
+#
 
+def get_context_prompt(*, lang: str, source_text: str, is_song: bool) -> str:
+    if is_song:
+        return f"""For context, we are translating a worship song from English to {lang}, aiming for theological accuracy, simple and clear language, singability to the original tune, and cultural sensitivity.
 
-context = f"""For context, we are translating a worship song from English to {lang}, aiming for theological accuracy, simple and clear language, singability to the original tune, and cultural sensitivity.
+    This step is one part of a multi-step process to translate the song. Do only what is asked in each step.
+    """
+    else:
+        return f"""For context, we are translating a text from English to {lang}, aiming for accuracy, simplicity, and clarity.
+    
+    This step is one part of a multi-step process to translate the text. Do only what is asked in each step.
+    """
 
-This step is one part of a multi-step process to translate the song. Do only what is asked in each step.
-"""
+def get_analysis_prompt(*, lang: str, source_text: str, is_song: bool) -> str:
+    context = get_context_prompt(lang=lang, source_text=source_text, is_song=is_song)
 
-analysis_prompt = f"""{context}
+    analysis_components = [
+        f"Theological concepts and terminology, including any specific references to scripture or doctrine. For each concept or reference, describe it in English and {lang}, including a complete quote in {lang} if applicable.",
+        "Cultural references",
+        "Key metaphors and imagery",
+        "Potential translation challenges"
+    ]
+    if is_song:
+        analysis_components.append("Poetic devices (rhyme scheme, meter, alliteration)")
+
+    return f"""{context}
 
 Please provide a detailed analysis of the source text to help guide the translation process.
 
 {source_text}
 
-Provide a detailed analysis of:
-1. Theological concepts and terminology, including any specific references to scripture or doctrine. For each concept or reference, describe it in English and {lang}, including a complete quote in {lang} if applicable.
-2. Poetic devices (rhyme scheme, meter, alliteration)
-3. Cultural references
-4. Key metaphors and imagery
-5. Potential translation challenges
+Provide a detailed analysis of the following aspects:
+{'\n'.join('{}. {}'.format(i + 1, comp) for i, comp in enumerate(analysis_components))}
 
 Use bullet points to organize your analysis.
 
-Also, for each line, show the stressed and unstressed syllables. For example, "a-MA-zing GRACE, how SWEET the SOUND"; "He who is MIGHTy has DONE a great THING".
+{'Also, for each line, show the stressed and unstressed syllables. For example, "a-MA-zing GRACE, how SWEET the SOUND"; "He who is MIGHTy has DONE a great THING".' if is_song else ''}
 
 Place the results of your analysis inside <analysis> tags.
 """
 
-analysis = get_and_show_llm_response(analysis_prompt, "source_analysis", "Source Analysis")
+def get_literal_translation_prompt(*, lang: str, source_text: str, is_song: bool) -> str:
+    context = get_context_prompt(lang=lang, source_text=source_text, is_song=is_song)
+    item_type = "lyrics" if is_song else "text"
+    return f"""{context}
 
-st.header("Phase 2: Literal Translation")
-
-st.subheader(f"{lang} Translation")
-
-literal_translation_prompt = f"""{context}
-
-Provide a literal, word-for-word translation of the following lyrics into {lang}:
+Provide a literal, word-for-word translation of the following {item_type} into {lang}:
 
 {source_text}
 
 Include alternate translations for key terms and note any challenging passages.
 
-If a stanza has a heading (like Chorus 2 or Bridge), include it in the output *without translation*. Likewise, if a line is blank, include a blank line in the output.
+{'If a stanza has a heading (like Chorus 2 or Bridge), include it in the output *without translation*.' if is_song else ''} If a line is blank, include a blank line in the output.
 
 Place your translation inside <literal_translation> tags.
 """
 
-literal_translation = get_and_show_llm_response(literal_translation_prompt, f"literal_translation_{lang}", f"{lang} Literal Translation")
+def get_clarity_prompt(*, lang: str, source_text: str, is_song: bool, literal_translation, analysis) -> str:
+    context = get_context_prompt(lang=lang, source_text=source_text, is_song=is_song)
+    item_type = "song" if is_song else "text"
+    target_characteristics = "singable, poetic" if is_song else "clear, simple"
 
-st.header("Phase 3: Singability and Clarity")
-    
+    return f"""{context}
 
-adaptation_prompt = f"""{context}
-
-Adapt this literal translation into singable, poetic {lang}, emphasizing clarity while retaining a reasonable amount of the original meaning.
+Adapt this literal translation into {target_characteristics} {lang}, emphasizing clarity while retaining a reasonable amount of the original meaning.
 
 If a stanza has a heading (like Chorus 2 or Bridge), include it in the output *without translation*. Likewise, if a line is blank, include a blank line in the output.
 
 If applicable, write an alternative translation after a line in square brackets. For example, "Amazing grace, how sweet the sound [Stunning grace, how it moves my ear]".
+
 If there are no reasonable alternatives, simply leave the line as is.
 
 <original>
@@ -93,49 +109,46 @@ If there are no reasonable alternatives, simply leave the line as is.
 </original>
 
 <analysis>
-{extract_text_inside_tags(analysis, "analysis")}
+{analysis}
 </analysis>
 
 <literal_translation>
-{extract_text_inside_tags(literal_translation, "literal_translation")}
+{literal_translation}
 </literal_translation>
 
-Consider meter and rhyme scheme.
+{'Consider meter and rhyme scheme.' if is_song else ''}
 
-Place your singable translation inside <singable_translation> tags.
+Place your resulting translation inside <clear_translation> tags.
 """
 
-singable_translation = get_and_show_llm_response(adaptation_prompt, f"singable_translation_{lang}", f"{lang} Singable Translation")
-
-st.header("Phase 4: Backtranslation")
-backtranslation_prompt = f"""{context}
+def get_backtranslation_prompt(*, lang: str, source_text: str, clarified_translation: str) -> str:
+    context = get_context_prompt(lang=lang, source_text=source_text, is_song=is_song)
+    return f"""{context}
 
 To verify the translation, we will backtranslate it into the original language. Translate the following literally into English, adding notes as needed in [ ] brackets:
 
 <translation>
-{extract_text_inside_tags(singable_translation, "singable_translation")}
+{clarified_translation}
 </translation>
 """
 
-# show the original lyrics next to the backtranslation
-cols = st.columns(2)
-with cols[0]:
-    st.subheader("Original Lyrics")
-    st.text(source_text)
-with cols[1]:
-    backtranslation = get_and_show_llm_response(backtranslation_prompt, f"backtranslation_{lang}", f"{lang} Backtranslation", editable=False)
+def get_review_prompt(*, lang: str, source_text: str, clarified_translation: str, backtranslation: str, is_song: bool) -> str:
+    context = get_context_prompt(lang=lang, source_text=source_text, is_song=is_song)
+    review_elements = [
+        "Accuracy of meaning",
+        "Preservation of theological concepts",
+        "Cultural appropriateness",
+        "Areas for potential improvement"
+    ]
+    if is_song:
+        review_elements.append("How well it can be sung to the original tune")
 
-st.header("Phase 5: Final Review")
-review_prompt = f"""{context}
+    return f"""{context}
 
 Please provide a comprehensive review of the translation, considering:
-1. Accuracy of meaning
-2. Preservation of theological concepts
-3. How well it can be sung to the original tune
-4. Cultural appropriateness
-5. Areas for potential improvement
+{'\n'.join('{}. {}'.format(i + 1, elem) for i, elem in enumerate(review_elements))}
 
-One or more errors may have been introduced in the translation. Identify and correct it.
+One or more errors may have been introduced in the translation. Identify and correct them.
 
 Compare:
 
@@ -143,7 +156,7 @@ Original:
 {source_text}
 
 Final Translation:
-{extract_text_inside_tags(singable_translation, "singable_translation")}
+{clarified_translation}
 
 Backtranslation:
 {backtranslation}
@@ -152,43 +165,82 @@ Rate each aspect on a scale of 1-5 and provide specific recommendations for impr
 Place your review inside <review> tags.
 """
 
-final_review = get_and_show_llm_response(review_prompt, f"final_review_{lang}", "Final Review", editable=True)
+def get_final_translation_prompt(*, lang: str, source_text: str, analysis: str, singable_translation: str, final_review: str, is_song: bool) -> str:
+    context = get_context_prompt(lang=lang, source_text=source_text, is_song=is_song)
+    item_type = "song" if is_song else "text"
+    return f"""{context}
 
-st.header("Phase 6: Final Translation")
-
-final_translation_prompt = f"""{context}
-
-Based on the analysis, translation, backtranslation, and review, provide a final translation of the song lyrics into {lang}.
+Based on the analysis, translation, backtranslation, and review, provide a final translation of the {item_type} into {lang}.
 
 <original>
 {source_text}
 </original>
 
 <analysis>
-{extract_text_inside_tags(analysis, "analysis")}
+{analysis}
 </analysis>
 
 <translation>
-{extract_text_inside_tags(singable_translation, "singable_translation")}
+{clarified_translation}
 </translation>
 
 <review>
-{extract_text_inside_tags(final_review, "review")}
+{final_review}
 </review>
 
 Place your final translation inside <final_translation> tags.
 """
 
+# Run it!
+
+analysis_prompt = get_analysis_prompt(lang=lang, source_text=source_text, is_song=is_song)
+print(analysis_prompt)
+analysis = get_and_show_llm_response(analysis_prompt, "source_analysis", "Source Analysis")
+analysis = extract_text_inside_tags(analysis, "analysis")
+
+st.header("Phase 2: Literal Translation")
+
+st.subheader(f"{lang} Translation")
+
+literal_translation_prompt = get_literal_translation_prompt(lang=lang, source_text=source_text, is_song=is_song)
+literal_translation = get_and_show_llm_response(literal_translation_prompt, f"literal_translation_{lang}", f"{lang} Literal Translation")
+literal_translation = extract_text_inside_tags(literal_translation, "literal_translation")
+
+st.header("Phase 3: Clarity")
+
+adaptation_prompt = get_clarity_prompt(lang=lang, source_text=source_text, is_song=is_song, literal_translation=literal_translation, analysis=analysis)
+clarified_translation = get_and_show_llm_response(adaptation_prompt, f"clarified_translation_{lang}", f"{lang} clarified Translation")
+clarified_translation = extract_text_inside_tags(clarified_translation, "clear_translation")
+
+st.header("Phase 4: Backtranslation")
+
+# show the original text next to the backtranslation
+cols = st.columns(2)
+with cols[0]:
+    st.subheader("Original Text")
+    st.text(source_text)
+with cols[1]:
+    backtranslation_prompt = get_backtranslation_prompt(lang=lang, source_text=source_text, clarified_translation=clarified_translation)
+    backtranslation = get_and_show_llm_response(backtranslation_prompt, f"backtranslation_{lang}", f"{lang} Backtranslation", editable=False)
+    backtranslation = extract_text_inside_tags(backtranslation, "backtranslation")
+
+st.header("Phase 5: Final Review")
+
+review_prompt = get_review_prompt(lang=lang, source_text=source_text, clarified_translation=clarified_translation, backtranslation=backtranslation, is_song=is_song)
+final_review = get_and_show_llm_response(review_prompt, f"final_review_{lang}", "Final Review", editable=True)
+final_review = extract_text_inside_tags(final_review, "review")
+
+st.header("Phase 6: Final Translation")
+
+final_translation_prompt = get_final_translation_prompt(lang=lang, source_text=source_text, analysis=analysis, singable_translation=clarified_translation, final_review=final_review, is_song=is_song)
 final_translation = get_and_show_llm_response(final_translation_prompt, f"final_translation_{lang}", f"{lang} Final Translation")
-
-
 final_translation_body = extract_text_inside_tags(final_translation, "final_translation")
 
 # original text side-by-side with final translation
 
 cols = st.columns(2)
 with cols[0]:
-    st.subheader("Original Lyrics")
+    st.subheader("Original Text")
     st.text(source_text)
 
 with cols[1]:
@@ -199,8 +251,8 @@ with cols[1]:
         st.code(final_translation_body)
 
 def iteratively_improve():
-    """Copy the final translation back into 'singable translation'"""
-    key = f"singable_translation_{lang}"
+    """Copy the final translation back into 'clarified translation'"""
+    key = f"clarified_translation_{lang}"
     st.session_state[key] = final_translation_body
 
 st.button("Iteratively Improve", on_click=iteratively_improve)
