@@ -194,7 +194,6 @@ Place your final translation inside <final_translation> tags.
 # Run it!
 
 analysis_prompt = get_analysis_prompt(lang=lang, source_text=source_text, is_song=is_song)
-print(analysis_prompt)
 analysis = get_and_show_llm_response(analysis_prompt, "source_analysis", "Source Analysis")
 analysis = extract_text_inside_tags(analysis, "analysis")
 
