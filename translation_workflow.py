@@ -68,7 +68,7 @@ Provide a detailed analysis of the following aspects:
 
 Use bullet points to organize your analysis.
 
-{'Also, for each line, show the stressed and unstressed syllables. For example, "a-MA-zing GRACE, how SWEET the SOUND"; "He who is MIGHTy has DONE a great THING".' if is_song else ''}
+{'Also, for each line in a representative sample of each section of the song (verse, chorus, bridge, etc.), show the stressed and unstressed syllables. For example, "a-MA-zing GRACE, how SWEET the SOUND"; "He who is MIGHTy has DONE a great THING".' if is_song else ''}
 
 Place the results of your analysis inside <analysis> tags.
 """
