@@ -19,7 +19,7 @@ with st.form("input_form"):
     lang = st.text_input("Target Language", "French")
     is_song = st.checkbox("Is this a song?")
     source_text = st.text_area(
-        "Original Lyrics" if is_song else "Original Text",
+        "Original Text",
         key="source_text",
         height=200
     )
