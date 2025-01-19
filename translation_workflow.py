@@ -23,6 +23,7 @@ with st.form("input_form"):
         key="source_text",
         height=200
     )
+    extra_context = st.text_area("Extra Context (optional)", height=200, help="Provide any additional context or instructions that might be helpful for the translation.")
     st.form_submit_button("Start Translation Workflow")
 
 if not source_text:
@@ -35,15 +36,19 @@ st.header("Phase 1: Analysis")
 
 def get_context_prompt(*, lang: str, source_text: str, is_song: bool) -> str:
     if is_song:
-        return f"""For context, we are translating a worship song from English to {lang}, aiming for theological accuracy, simple and clear language, singability to the original tune, and cultural sensitivity.
+        base = f"""For context, we are translating a worship song from English to {lang}, aiming for theological accuracy, simple and clear language, singability to the original tune, and cultural sensitivity.
 
-    This step is one part of a multi-step process to translate the song. Do only what is asked in each step.
-    """
+This step is one part of a multi-step process to translate the song. Do only what is asked in each step.
+"""
     else:
-        return f"""For context, we are translating a text from English to {lang}, aiming for accuracy, simplicity, and clarity.
-    
-    This step is one part of a multi-step process to translate the text. Do only what is asked in each step.
-    """
+        base = f"""For context, we are translating a text from English to {lang}, aiming for accuracy, simplicity, and clarity.
+
+This step is one part of a multi-step process to translate the text. Do only what is asked in each step.
+"""
+        
+    if extra_context:
+        return f"{base}\n\nThe following extra context was provided by the user. Please use it only if it is helpful. <extra_context>\n{extra_context}</extra_context>\n"
+    return base
 
 def get_analysis_prompt(*, lang: str, source_text: str, is_song: bool) -> str:
     context = get_context_prompt(lang=lang, source_text=source_text, is_song=is_song)
