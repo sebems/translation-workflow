@@ -82,7 +82,7 @@ Provide a literal, word-for-word translation of the following {item_type} into {
 
 {source_text}
 
-Include alternate translations for key terms and note any challenging passages.
+After each line or paragraph, provide alternative translations for key terms, ambiguous passages, and any challenging passages. Use square brackets to indicate alternatives. Include brief explanations and backtranslations of any alternative translations so that even a non-native speaker could understand what the choice means.
 
 {'If a stanza has a heading (like Chorus 2 or Bridge), include it in the output *without translation*.' if is_song else ''} If a line is blank, include a blank line in the output.
 
@@ -100,7 +100,7 @@ Adapt this literal translation into {target_characteristics} {lang}, emphasizing
 
 If a stanza has a heading (like Chorus 2 or Bridge), include it in the output *without translation*. Likewise, if a line is blank, include a blank line in the output.
 
-If applicable, write an alternative translation after a line in square brackets. For example, "Amazing grace, how sweet the sound [Stunning grace, how it moves my ear]".
+If applicable, write an alternative translation after a phrase or line in square brackets. For example, "Amazing grace, how sweet the sound [Stunning grace, how it moves my ear]". Don't include backtranslations at this point.
 
 If there are no reasonable alternatives, simply leave the line as is.
 
