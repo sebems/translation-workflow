@@ -24,7 +24,7 @@ def get_and_show_llm_response(prompt: str, key: str, step_name: str, editable: b
         kwargs['system'] = dedent(kwargs['system'])
 
     result = st.session_state.get(key, None)
-    redo = st.button("Redo " + step_name)
+    redo = st.button("Redo " + step_name, help="Prompt: " + prompt)
     container = st.empty()
     if result is None or redo or st.session_state.get(key + "_prompt") != prompt:
         response = stream_llm_response(prompt, **kwargs)
