@@ -125,9 +125,10 @@ If there are no reasonable alternatives, simply leave the line as is.
 {literal_translation}
 </literal_translation>
 
-{'Consider meter and rhyme scheme.' if is_song else ''}
+Place your resulting translation inside <clear_translation> </clear_translation> tags.
 
-Place your resulting translation inside <clear_translation> tags.
+{'Then, inside <syllabification> </syllabification> tags, repeat the entire translation but writing STRESSED and unstressed syllables as was done in the analysis above.' if is_song else ''}
+
 """
 
 def get_backtranslation_prompt(*, lang: str, source_text: str, clarified_translation: str) -> str:
@@ -141,7 +142,7 @@ To verify the translation, we will backtranslate it into the original language. 
 </translation>
 """
 
-def get_review_prompt(*, lang: str, source_text: str, clarified_translation: str, backtranslation: str, is_song: bool) -> str:
+def get_review_prompt(*, lang: str, source_text: str, clarified_translation: str, backtranslation: str, is_song: bool, syllabification: str | None) -> str:
     context = get_context_prompt(lang=lang, source_text=source_text, is_song=is_song)
     review_elements = [
         "Accuracy of meaning",
@@ -149,8 +150,14 @@ def get_review_prompt(*, lang: str, source_text: str, clarified_translation: str
         "Cultural appropriateness",
         "Areas for potential improvement"
     ]
+    syllabification_prompt = ''
     if is_song:
         review_elements.append("How well it can be sung to the original tune")
+        syllabification_prompt = f"""
+<syllabification>
+{syllabification}
+</syllabification>
+"""
 
     return f"""{context}
 
@@ -170,7 +177,8 @@ Final Translation:
 Backtranslation:
 {backtranslation}
 
-Rate each aspect on a scale of 1-5 and provide specific recommendations for improvement.
+{syllabification_prompt if is_song else ''}
+The analysis should include both strengths and weaknesses. Provide specific recommendations for improvement.
 Place your review inside <review> tags.
 """
 
@@ -217,8 +225,9 @@ literal_translation = extract_text_inside_tags(literal_translation, "literal_tra
 st.header("Phase 3: Clarity")
 
 adaptation_prompt = get_clarity_prompt(lang=lang, source_text=source_text, is_song=is_song, literal_translation=literal_translation, analysis=analysis)
-clarified_translation = get_and_show_llm_response(adaptation_prompt, f"clarified_translation_{lang}", f"{lang} clarified Translation")
-clarified_translation = extract_text_inside_tags(clarified_translation, "clear_translation")
+clarified_translation_raw = get_and_show_llm_response(adaptation_prompt, f"clarified_translation_{lang}", f"{lang} clarified Translation")
+clarified_translation = extract_text_inside_tags(clarified_translation_raw, "clear_translation")
+syllabification = extract_text_inside_tags(clarified_translation_raw, "syllabification") if is_song else None
 
 st.header("Phase 4: Backtranslation")
 
@@ -234,7 +243,7 @@ with cols[1]:
 
 st.header("Phase 5: Final Review")
 
-review_prompt = get_review_prompt(lang=lang, source_text=source_text, clarified_translation=clarified_translation, backtranslation=backtranslation, is_song=is_song)
+review_prompt = get_review_prompt(lang=lang, source_text=source_text, clarified_translation=clarified_translation, backtranslation=backtranslation, is_song=is_song, syllabification=syllabification)
 final_review = get_and_show_llm_response(review_prompt, f"final_review_{lang}", "Final Review", editable=True)
 final_review = extract_text_inside_tags(final_review, "review")
 
