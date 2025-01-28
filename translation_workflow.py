@@ -66,7 +66,9 @@ def get_analysis_prompt(*, lang: str, source_text: str, is_song: bool) -> str:
 
 Please provide a detailed analysis of the source text to help guide the translation process.
 
+<source_text>
 {source_text}
+<source_text>
 
 Provide a detailed analysis of the following aspects:
 {'\n'.join('{}. {}'.format(i + 1, comp) for i, comp in enumerate(analysis_components))}
@@ -85,7 +87,9 @@ def get_literal_translation_prompt(*, lang: str, source_text: str, is_song: bool
 
 Provide a literal, word-for-word translation of the following {item_type} into {lang}:
 
+<source_text>
 {source_text}
+</source_text>
 
 After each line or paragraph, provide alternative translations for key terms, ambiguous passages, and any challenging passages. Use square brackets to indicate alternatives. Include brief explanations and backtranslations of any alternative translations so that even a non-native speaker could understand what the choice means.
 
@@ -170,7 +174,7 @@ Rate each aspect on a scale of 1-5 and provide specific recommendations for impr
 Place your review inside <review> tags.
 """
 
-def get_final_translation_prompt(*, lang: str, source_text: str, analysis: str, singable_translation: str, final_review: str, is_song: bool) -> str:
+def get_final_translation_prompt(*, lang: str, source_text: str, analysis: str, clarified_translation: str, final_review: str, is_song: bool) -> str:
     context = get_context_prompt(lang=lang, source_text=source_text, is_song=is_song)
     item_type = "song" if is_song else "text"
     return f"""{context}
@@ -236,7 +240,7 @@ final_review = extract_text_inside_tags(final_review, "review")
 
 st.header("Phase 6: Final Translation")
 
-final_translation_prompt = get_final_translation_prompt(lang=lang, source_text=source_text, analysis=analysis, singable_translation=clarified_translation, final_review=final_review, is_song=is_song)
+final_translation_prompt = get_final_translation_prompt(lang=lang, source_text=source_text, analysis=analysis, clarified_translation=clarified_translation, final_review=final_review, is_song=is_song)
 final_translation = get_and_show_llm_response(final_translation_prompt, f"final_translation_{lang}", f"{lang} Final Translation")
 final_translation_body = extract_text_inside_tags(final_translation, "final_translation")
 
