@@ -17,6 +17,7 @@ def landing():
 
 
 # Manually specify the sidebar
+st.sidebar.write("Translation Utilities\n\nby [Ken Arnold](https://kenarnold.org/)")
 page = st.navigation([
     #st.Page(landing, title="Home", icon="🏠"),
     workflow_page,
