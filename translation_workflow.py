@@ -1,3 +1,39 @@
+"""Translation Workflow
+
+This script implements a 6-phase workflow for high-quality text/song translation:
+
+1. Analysis Phase
+   - Analyzes theological concepts, cultural references, metaphors, and translation challenges
+   - For songs: additionally analyzes poetic devices and syllable stress patterns
+
+2. Literal Translation Phase
+   - Creates a word-for-word translation
+   - Provides alternative translations for key terms and ambiguous passages
+   - Includes explanations and backtranslations for alternatives
+
+3. Clarity Phase
+   - Adapts the literal translation for clarity and natural language flow
+   - For songs: considers meter and rhyme scheme
+   - Provides alternative phrasings in brackets
+
+4. Backtranslation Phase
+   - Translates the clarified version back to the original language
+   - Helps identify potential meaning shifts or errors
+
+5. Review Phase
+   - Evaluates accuracy, theological preservation, and cultural appropriateness
+   - Provides specific improvement recommendations
+   - For songs: additionally evaluates singability
+
+6. Final Translation Phase
+   - Produces the final translation incorporating all previous feedback
+   - Displays results side-by-side with the original
+   - Allows for iterative improvement cycles
+
+The workflow is implemented as a Streamlit web application with interactive forms
+and step-by-step progression through each phase.
+"""
+
 import streamlit as st
 from llm_util import get_and_show_llm_response
 
