@@ -16,6 +16,7 @@ def extract_text_inside_tags(text: str, tag: str) -> str:
 
 
 with st.form("input_form"):
+    source_lang = st.text_input("Source Language", "English")
     lang = st.text_input("Target Language", "French")
     is_song = st.checkbox("Is this a song?")
     source_text = st.text_area(
@@ -36,12 +37,12 @@ st.header("Phase 1: Analysis")
 
 def get_context_prompt(*, lang: str, source_text: str, is_song: bool) -> str:
     if is_song:
-        base = f"""For context, we are translating a worship song from English to {lang}, aiming for theological accuracy, simple and clear language, singability to the original tune, and cultural sensitivity.
+        base = f"""For context, we are translating a worship song from {source_lang} to {lang}, aiming for theological accuracy, simple and clear language, singability to the original tune, and cultural sensitivity.
 
 This step is one part of a multi-step process to translate the song. Do only what is asked in each step.
 """
     else:
-        base = f"""For context, we are translating a text from English to {lang}, aiming for accuracy, simplicity, and clarity.
+        base = f"""For context, we are translating a text from {source_lang} to {lang}, aiming for accuracy, simplicity, and clarity.
 
 This step is one part of a multi-step process to translate the text. Do only what is asked in each step.
 """
@@ -54,7 +55,7 @@ def get_analysis_prompt(*, lang: str, source_text: str, is_song: bool) -> str:
     context = get_context_prompt(lang=lang, source_text=source_text, is_song=is_song)
 
     analysis_components = [
-        f"Theological concepts and terminology, including any specific references to scripture or doctrine. For each concept or reference, describe it in English and {lang}, including a complete quote in {lang} if applicable.",
+        f"Theological concepts and terminology, including any specific references to scripture or doctrine. For each concept or reference, describe it in {source_lang} and {lang}, including a complete quote in {lang} if applicable.",
         "Cultural references",
         "Key metaphors and imagery",
         "Potential translation challenges"
@@ -135,7 +136,7 @@ def get_backtranslation_prompt(*, lang: str, source_text: str, clarified_transla
     context = get_context_prompt(lang=lang, source_text=source_text, is_song=is_song)
     return f"""{context}
 
-To verify the translation, we will backtranslate it into the original language. Translate the following literally into English, adding notes as needed in [ ] brackets:
+To verify the translation, we will backtranslate it into the original language. Translate the following literally into {source_lang}, adding notes as needed in [ ] brackets:
 
 <translation>
 {clarified_translation}
