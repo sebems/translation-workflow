@@ -3,9 +3,14 @@ import streamlit as st
 model_name = "claude-3-5-sonnet-latest"
 
 def stream_llm_response(prompt, max_tokens=5000, temperature=0.7, **kwargs):
+    # FIXME: rename the argument to `messages`, or allow prompt= or messages=
+    if isinstance(prompt, str):
+        messages = [{"role": "user", "content": prompt}]
+    else:
+        messages = prompt
     stream = st.session_state.client.messages.stream(
         model=model_name,
-        messages=[{"role": "user", "content": prompt}],
+        messages=messages,
         max_tokens=max_tokens,
         temperature=temperature,
         **kwargs
@@ -14,7 +19,6 @@ def stream_llm_response(prompt, max_tokens=5000, temperature=0.7, **kwargs):
         for chunk in text_stream:
             if chunk.type == 'text':
                 yield chunk.text
-
 
 def get_and_show_llm_response(prompt: str, key: str, step_name: str, editable: bool = True, show: bool = True, **kwargs) -> str:
     # strip indentation from prompt

@@ -35,7 +35,7 @@ and step-by-step progression through each phase.
 """
 
 import streamlit as st
-from llm_util import get_and_show_llm_response
+from llm_util import get_and_show_llm_response, stream_llm_response
 
 def extract_text_inside_tags(text: str, tag: str) -> str:
     """Extract text inside a pair of tags.
@@ -310,3 +310,44 @@ def iteratively_improve():
     st.session_state[key] = final_translation_body
 
 st.button("Iteratively Improve", on_click=iteratively_improve)
+
+st.write("## Conversation")
+
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+
+with st.chat_message("user"):
+    st.write(f"*Context includes original text and final translation above*")
+    context_for_llm = f"""<context><source_text>
+{source_text}
+</source_text>
+
+<translationSoFar>
+{final_translation_body}
+</translationSoFar>
+</context>
+
+"""
+    st.write(context_for_llm)
+
+for message in st.session_state.messages:
+    with st.chat_message(message['role']):
+        st.markdown(message['content'])
+
+# Accept user input
+if prompt := st.chat_input():
+    with st.chat_message("user"):
+        st.markdown(prompt)
+
+
+    st.session_state.messages.append({"role": "user", "content": prompt})
+
+    # Prepend the context to the first user message
+    actual_messages = [
+        {"role": "user", "content": context_for_llm},
+        {"role": "assistant", "content": "Got it."},
+    ] + st.session_state.messages
+    with st.chat_message('assistant'):
+        # This shows the response also
+        response = stream_llm_response(actual_messages)
+    st.session_state.messages.append({"role": "assistant", "content": response})
