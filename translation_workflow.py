@@ -328,7 +328,8 @@ with st.chat_message("user"):
 </context>
 
 """
-    st.write(context_for_llm)
+    with st.expander("Show context for LLM", expanded=False):
+        st.text(context_for_llm)
 
 for message in st.session_state.messages:
     with st.chat_message(message['role']):
