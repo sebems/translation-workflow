@@ -313,7 +313,7 @@ st.button("Iteratively Improve", on_click=iteratively_improve)
 
 st.write("## Conversation")
 
-if "messages" not in st.session_state:
+if "messages" not in st.session_state or st.button("Reset Chat"):
     st.session_state.messages = []
 
 with st.chat_message("user"):
@@ -349,5 +349,5 @@ if prompt := st.chat_input():
     ] + st.session_state.messages
     with st.chat_message('assistant'):
         # This shows the response also
-        response = stream_llm_response(actual_messages)
+        response = st.write_stream(stream_llm_response(actual_messages))
     st.session_state.messages.append({"role": "assistant", "content": response})
