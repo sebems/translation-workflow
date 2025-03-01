@@ -24,4 +24,5 @@ page = st.navigation([
 ])
 page.run()
 
-st.sidebar.write("Translation Utilities\n\nby [Ken Arnold](https://kenarnold.org/)")
+from llm_util import model_name
+st.sidebar.write(f"Translation Utilities\n\nby [Ken Arnold](https://kenarnold.org/)\n\nModel: {model_name}")
