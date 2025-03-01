@@ -1,6 +1,6 @@
 import streamlit as st
 
-model_name = "claude-3-5-sonnet-latest"
+model_name = "claude-3-7-sonnet-latest"
 
 def stream_llm_response(prompt, max_tokens=5000, temperature=0.7, **kwargs):
     # FIXME: rename the argument to `messages`, or allow prompt= or messages=
