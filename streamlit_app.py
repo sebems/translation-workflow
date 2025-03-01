@@ -17,12 +17,13 @@ def landing():
 
 
 # Manually specify the sidebar
+
+from llm_util import model_name
+st.sidebar.write(f"Translation Utilities\n\nby [Ken Arnold](https://kenarnold.org/)\n\nModel: {model_name}")
+
 page = st.navigation([
     #st.Page(landing, title="Home", icon="🏠"),
     workflow_page,
     alignment_page,
 ])
 page.run()
-
-from llm_util import model_name
-st.sidebar.write(f"Translation Utilities\n\nby [Ken Arnold](https://kenarnold.org/)\n\nModel: {model_name}")
