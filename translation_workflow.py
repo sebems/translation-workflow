@@ -97,7 +97,10 @@ def get_analysis_prompt(*, lang: str, source_text: str, is_song: bool) -> str:
         "Potential translation challenges"
     ]
     if is_song:
+        analysis_components.insert(0, "Section-by-section outline, with the main idea(s) of each part of each section.")
         analysis_components.append("Poetic devices (rhyme scheme, meter, alliteration)")
+    else:
+        analysis_components.insert(0, "Outline of the text, with the main ideas of each section")
 
     return f"""{context}
 
