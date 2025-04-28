@@ -5,6 +5,7 @@ from anthropic import Anthropic
 if 'client' not in st.session_state:
     st.session_state.client = Anthropic(api_key=st.secrets["ANTHROPIC_API_KEY"])
 
+st.set_page_config(layout="wide")
 
 workflow_page = st.Page("translation_workflow.py", title="Translation workflow")
 alignment_page = st.Page("alignment.py", title="Alignment")

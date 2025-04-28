@@ -1,15 +1,6 @@
 import streamlit as st
 from llm_util import get_and_show_llm_response
 
-# wide page
-st.set_page_config(layout="wide")
-
-# Initialize Anthropic client
-if 'client' not in st.session_state:
-    from anthropic import Anthropic
-    st.session_state.client = Anthropic(api_key=st.secrets["ANTHROPIC_API_KEY"])
-
-
 st.subheader("Original Text")
 english_text = st.text_area("Enter the English version with formatting:", height=300)
 
