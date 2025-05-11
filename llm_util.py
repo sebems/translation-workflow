@@ -27,6 +27,10 @@ def removeMarkdownTag(text: str) -> str:
     text = text.replace("\n```", "")
     return text
 
+def removeFinalTag(text: str) -> str:
+    text = text.replace("*   **Final Translation:**", "")
+    return text
+
 def get_context_prompt(*, target_lang: str, source_lang: str, is_song=False, extra_context) -> str:
     if is_song:
         base = f"""For context, we are translating a worship song from {source_lang} to {target_lang}, aiming for theological accuracy, simple and clear language, singability to the original tune, and cultural sensitivity.
@@ -42,3 +46,32 @@ This step is one part of a multi-step process to translate the text. Do only wha
     if extra_context:
         return f"{base}\n\nThe following extra context was provided by the user. Please use it only if it is helpful. <extra_context>\n{extra_context}</extra_context>\n"
     return base
+
+def get_and_show_llm_response(prompt: str, key: str, step_name: str, editable: bool = True, show: bool = True, **kwargs) -> str:
+    # strip indentation from prompt
+    from textwrap import dedent
+    prompt = dedent(prompt)
+    if 'system' in kwargs:
+        kwargs['system'] = dedent(kwargs['system'])
+
+    result = st.session_state.get(key, None)
+    redo = st.button("Redo " + step_name, help="Prompt: " + prompt)
+    container = st.empty()
+    if result is None or redo or st.session_state.get(key + "_prompt") != prompt:
+        response = stream_llm_response(prompt, **kwargs)
+        result = container.write_stream(response)
+        assert isinstance(result, str)
+        st.session_state[key] = result
+        st.session_state[key + "_prompt"] = prompt
+    container.empty()
+    if show:
+        with container, st.container():
+            # We need another container because st.empty() only allows one element
+            if editable and st.checkbox(f"Edit {step_name}", key=key + "_edit"):
+                result = st.text_area(step_name, result, height=200)
+                if result != st.session_state.get(key, None):
+                    # Force an update
+                    st.session_state[key] = result
+            else:
+                st.markdown(result)
+    return result or ""

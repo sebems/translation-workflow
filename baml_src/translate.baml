@@ -50,7 +50,9 @@ function GetClarity(context: string, prompt: string, analysis: string, target_la
     {{literal_translation}}
     </literal_translation>
 
-    Place your resulting translation inside <clear_translation> </clear_translation> tags.
+    Use bullet points to organize your analysis.
+
+    Return as a markdown string
   "#
 }
 
@@ -114,7 +116,10 @@ function GetReview(
     {{backtranslation}}
 
     The analysis should include both strengths and weaknesses. Provide specific recommendations for improvement.
-    Place your review inside <review> tags.
+
+    Use bullet points to organize your analysis.
+
+    Return as a markdown string
   "#
 }
 
@@ -167,7 +172,9 @@ function GetFinalTranslation(
     {{final_review}}
     </review>
 
-    Place your final translation inside <final_translation> tags.
+    Use bullet points to organize your analysis.
+
+    Return the tranlation as a simple string.
   "#
 }
 
