@@ -5,6 +5,12 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
-    "anthropic>=0.42.0",
+    "baml-py==0.87.2",
+    "google-genai==1.14.0",
     "streamlit>=1.44",
+]
+
+[tool.uv.workspace]
+members = [
+    "modules",
 ]

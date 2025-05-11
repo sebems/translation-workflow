@@ -1,0 +1,14 @@
+2025-05-10 18:20:01,109 root ERROR st.session_state has no attribute "client". Did you forget to initialize it? More info: https://docs.streamlit.io/develop/concepts/architecture/session-state#initialization
+2025-05-10 18:20:27,601 root ERROR st.session_state has no attribute "client". Did you forget to initialize it? More info: https://docs.streamlit.io/develop/concepts/architecture/session-state#initialization
+2025-05-10 18:21:17,979 root ERROR st.session_state has no attribute "client". Did you forget to initialize it? More info: https://docs.streamlit.io/develop/concepts/architecture/session-state#initialization
+2025-05-10 18:21:59,854 root ERROR st.session_state has no attribute "client". Did you forget to initialize it? More info: https://docs.streamlit.io/develop/concepts/architecture/session-state#initialization
+2025-05-10 18:22:28,134 root ERROR st.session_state has no attribute "client". Did you forget to initialize it? More info: https://docs.streamlit.io/develop/concepts/architecture/session-state#initialization
+2025-05-10 18:32:50,247 root ERROR st.session_state has no attribute "client". Did you forget to initialize it? More info: https://docs.streamlit.io/develop/concepts/architecture/session-state#initialization
+2025-05-10 18:34:15,923 root ERROR st.session_state has no attribute "client". Did you forget to initialize it? More info: https://docs.streamlit.io/develop/concepts/architecture/session-state#initialization
+2025-05-10 18:34:47,987 root ERROR st.session_state has no attribute "client". Did you forget to initialize it? More info: https://docs.streamlit.io/develop/concepts/architecture/session-state#initialization
+2025-05-10 18:35:36,493 root ERROR st.session_state has no attribute "client". Did you forget to initialize it? More info: https://docs.streamlit.io/develop/concepts/architecture/session-state#initialization
+2025-05-10 18:37:50,609 root ERROR st.session_state has no attribute "client". Did you forget to initialize it? More info: https://docs.streamlit.io/develop/concepts/architecture/session-state#initialization
+2025-05-10 18:39:08,533 root ERROR st.session_state has no attribute "client". Did you forget to initialize it? More info: https://docs.streamlit.io/develop/concepts/architecture/session-state#initialization
+2025-05-10 18:41:45,167 root ERROR st.session_state has no attribute "client". Did you forget to initialize it? More info: https://docs.streamlit.io/develop/concepts/architecture/session-state#initialization
+2025-05-10 18:43:58,577 root ERROR st.session_state has no attribute "client". Did you forget to initialize it? More info: https://docs.streamlit.io/develop/concepts/architecture/session-state#initialization
+2025-05-10 18:44:12,167 root ERROR st.session_state has no attribute "client". Did you forget to initialize it? More info: https://docs.streamlit.io/develop/concepts/architecture/session-state#initialization

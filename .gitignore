@@ -1,2 +1,6 @@
 .streamlit/secrets.toml
 *.pyc
+.env
+
+##### Environments
+.venv/
