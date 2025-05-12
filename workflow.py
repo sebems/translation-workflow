@@ -1,6 +1,7 @@
 from baml_client import b
 import streamlit as st
 from llm_util import removeMarkdownTag, get_context_prompt, removeFinalTag
+import time
 
 with st.form("input_form"):
     source_lang = st.text_input("Source Language", "English")
@@ -17,32 +18,83 @@ with st.form("input_form"):
 if not source_text:
     st.stop()
 
-st.header("Phase 1: Analysis")
-
 CONTEXT = get_context_prompt(target_lang=target_lang, source_lang=source_lang, extra_context=extra_context)
 
-_analysis = b.GetAnalysis(context=CONTEXT, source_lang=source_lang, target_lang=target_lang, source_text=source_text)
-_analysis = removeMarkdownTag(_analysis)
+
+############################################################
+#                   ANALYSIS
+############################################################
+
+st.header("Phase 1: Analysis", divider=True)
+
+ANALYSIS_REDO_BTN = st.button("Redo " + "Analysis")
+ANALYSIS_STATUS = st.status("Analyzing prompt..")
+
+with ANALYSIS_STATUS:
+    _analysis = b.GetAnalysis(context=CONTEXT, source_lang=source_lang, target_lang=target_lang, source_text=source_text)
+    _analysis = removeMarkdownTag(_analysis)
+    st.write("Analysis Complete")
+
+    if ANALYSIS_REDO_BTN:
+        _analysis = st.empty()
+        _analysis = b.GetAnalysis(context=CONTEXT, source_lang=source_lang, target_lang=target_lang, source_text=source_text)
+        time.sleep(2)
+        _analysis = removeMarkdownTag(_analysis)
 
 st.markdown(_analysis)
 
-st.header("Phase 2: Literal Translation")
+############################################################
+#                   LITERAL TRANSLATION
+############################################################
+
+st.header("Phase 2: Literal Translation", divider=True)
 
 st.subheader(f"{target_lang} Translation")
 
-_literal_translation = b.GetLiteralTranslate(context=CONTEXT, prompt=source_text, source_lang=source_lang, target_lang=target_lang, is_song=False)
-_literal_translation = removeMarkdownTag(_literal_translation)
+LITERAL_REDO_BTN = st.button("Redo " + "Literal Translation")
+LITERAL_STATUS = st.status("Literal Translation...")
+
+with LITERAL_STATUS:
+    _literal_translation = b.GetLiteralTranslate(context=CONTEXT, prompt=source_text, source_lang=source_lang, target_lang=target_lang, is_song=False)
+    _literal_translation = removeMarkdownTag(_literal_translation)
+
+    if LITERAL_REDO_BTN:
+        _literal_translation = st.empty()
+        _literal_translation = b.GetLiteralTranslate(context=CONTEXT, prompt=source_text, source_lang=source_lang, target_lang=target_lang, is_song=False)
+        time.sleep(2)
+        _literal_translation = removeMarkdownTag(_literal_translation)
 
 st.markdown(_literal_translation)
 
-st.header("Phase 3: Clarity")
+############################################################
+#                   CLARITY
+############################################################
 
-_clarified_translation = b.GetClarity(context=CONTEXT, prompt=source_text, target_lang=target_lang, literal_translation=_literal_translation, analysis=_analysis)
-_clarified_translation = removeMarkdownTag(_clarified_translation)
+st.header("Phase 3: Clarity", divider=True)
+
+CLARITY_REDO_BTN = st.button("Redo " + "Clarity")
+CLARITY_STATUS = st.status("Generating clarity analysis...")
+
+with CLARITY_STATUS:
+    _clarified_translation = b.GetClarity(context=CONTEXT, prompt=source_text, target_lang=target_lang, literal_translation=_literal_translation, analysis=_analysis)
+    _clarified_translation = removeMarkdownTag(_clarified_translation)
+
+    if CLARITY_REDO_BTN:
+        _clarified_translation = st.empty()
+        _clarified_translation = b.GetClarity(context=CONTEXT, prompt=source_text, target_lang=target_lang, literal_translation=_literal_translation, analysis=_analysis)
+        time.sleep(2)
+        _clarified_translation = removeMarkdownTag(_clarified_translation)
 
 st.markdown(_clarified_translation)
 
-st.header("Phase 4: Backtranslation")
+############################################################
+#                   BACKTRANSLATION
+############################################################
+
+st.header("Phase 4: Backtranslation", divider=True)
+
+BACKTRANSLATE_REDO_BTN = st.button("Redo " + "Backtranslation")
+BACKTRANSLATE_STATUS = st.status("Generating backtranslation...")
 
 # show the original text next to the backtranslation
 cols = st.columns(2)
@@ -50,38 +102,91 @@ with cols[0]:
     st.subheader("Original Text")
     st.text(source_text)
 with cols[1]:
-    _backtranslation = b.GetBackTranslation(context=CONTEXT, source_lang=source_lang, clarified_translation=_clarified_translation)
-    _backtranslation = removeMarkdownTag(_backtranslation)
+    with BACKTRANSLATE_STATUS:
+        _backtranslation = b.GetBackTranslation(context=CONTEXT, source_lang=source_lang, clarified_translation=_clarified_translation)
+        _backtranslation = removeMarkdownTag(_backtranslation)
+
+        if BACKTRANSLATE_REDO_BTN:
+            _backtranslation = st.empty()
+            _backtranslation = b.GetBackTranslation(context=CONTEXT, source_lang=source_lang, clarified_translation=_clarified_translation)
+            time.sleep(2)
+            _backtranslation = removeMarkdownTag(_backtranslation)
 
     st.markdown(_backtranslation)
 
-st.header("Phase 5: Final Review")
+############################################################
+#                   FINAL REVIEW
+############################################################
 
-_final_review = b.GetReview(
-    context=CONTEXT,
-    target_lang=target_lang,
-    source_text=source_text,
-    clarified_translation=_clarified_translation,
-    backtranslation=_backtranslation,
-    syllabification="")
+st.header("Phase 5: Final Review", divider=True)
 
-_final_review = removeMarkdownTag(_final_review)
+REVIEW_REDO_BTN = st.button("Redo " + "Review")
+REVIEW_STATUS = st.status("Generating review...")
+
+with REVIEW_STATUS:
+    _final_review = b.GetReview(
+        context=CONTEXT,
+        target_lang=target_lang,
+        source_text=source_text,
+        clarified_translation=_clarified_translation,
+        backtranslation=_backtranslation,
+        syllabification="")
+
+    _final_review = removeMarkdownTag(_final_review)
+
+    if REVIEW_REDO_BTN:
+        _final_review = st.empty()
+
+        _final_review = b.GetReview(
+        context=CONTEXT,
+        target_lang=target_lang,
+        source_text=source_text,
+        clarified_translation=_clarified_translation,
+        backtranslation=_backtranslation,
+        syllabification="")
+
+        time.sleep(2)
+        _final_review = removeMarkdownTag(_final_review)
 
 st.markdown(_final_review)
 
-st.header("Phase 6: Final Translation")
+############################################################
+#                   FINAL TRANSLATION
+############################################################
 
-_final_translation = b.GetFinalTranslation(
-    context=CONTEXT,
-    target_lang=target_lang,
-    source_text=source_text,
-    analysis=_analysis,
-    clarified_translation=_clarified_translation,
-    final_review=_final_review,
-    item_type="text")
+st.header("Phase 6: Final Translation", divider=True)
 
-_final_translation = removeMarkdownTag(_final_translation)
-_final_translation = removeFinalTag(_final_translation)
+FINAL_REDO_BTN = st.button("Redo " + "Final Translation")
+FINAL_STATUS = st.status("Generating final translation...")
+
+with FINAL_STATUS:
+    _final_translation = b.GetFinalTranslation(
+        context=CONTEXT,
+        target_lang=target_lang,
+        source_text=source_text,
+        analysis=_analysis,
+        clarified_translation=_clarified_translation,
+        final_review=_final_review,
+        item_type="text")
+
+    _final_translation = removeMarkdownTag(_final_translation)
+    _final_translation = removeFinalTag(_final_translation)
+
+    if FINAL_REDO_BTN:
+        _final_translation = st.empty()
+
+        _final_translation = b.GetFinalTranslation(
+        context=CONTEXT,
+        target_lang=target_lang,
+        source_text=source_text,
+        analysis=_analysis,
+        clarified_translation=_clarified_translation,
+        final_review=_final_review,
+        item_type="text")
+
+        time.sleep(2)
+        _final_translation = removeMarkdownTag(_final_translation)
+        _final_translation = removeFinalTag(_final_translation)
 
 # original text side-by-side with final translation
 
@@ -96,52 +201,3 @@ with cols[1]:
     with tabs[1]:
         st.write("Click the Copy button in the top-right corner to copy the text.")
         st.code(_final_translation)
-
-def iteratively_improve(translation):
-    """Copy the final translation back into 'clarified translation'"""
-    key = f"clarified_translation_{target_lang}"
-    st.session_state[key] = translation
-
-st.button("Iteratively Improve", on_click=iteratively_improve, args=(_final_translation,))
-
-st.write("## Conversation")
-
-if "messages" not in st.session_state or st.button("Reset Chat"):
-    st.session_state.messages = []
-
-with st.chat_message("user"):
-    st.write(f"*Context includes original text and final translation above*")
-    context_for_llm = f"""<context><source_text>
-{source_text}
-</source_text>
-
-<translationSoFar>
-{_final_translation}
-</translationSoFar>
-</context>
-"""
-
-    with st.expander("Show context for LLM", expanded=False):
-        st.text(context_for_llm)
-
-for message in st.session_state.messages:
-    with st.chat_message(message['role']):
-        st.markdown(message['content'])
-
-# # Accept user input
-# if prompt := st.chat_input():
-#     with st.chat_message("user"):
-#         st.markdown(prompt)
-
-
-#     st.session_state.messages.append({"role": "user", "content": prompt})
-
-#     # Prepend the context to the first user message
-#     actual_messages = [
-#         {"role": "user", "content": context_for_llm},
-#         {"role": "assistant", "content": "Got it."},
-#     ] + st.session_state.messages
-#     with st.chat_message('assistant'):
-#         # This shows the response also
-#         response = st.write_stream(stream_llm_response(actual_messages))
-#     st.session_state.messages.append({"role": "assistant", "content": response})

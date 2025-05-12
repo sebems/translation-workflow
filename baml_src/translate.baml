@@ -177,13 +177,3 @@ function GetFinalTranslation(
     Return the tranlation as a simple string.
   "#
 }
-
-test analysis{
-    functions [GetAnalysis]
-    args {
-        context "For context, we are translating a text from English to French, aiming for accuracy, simplicity, and clarity. This step is one part of a multi-step process to translate the text. Do only what is asked in each step."
-        source_text "For God so loved the world!"
-        source_lang "English"
-        target_lang "French"
-    }
-}
