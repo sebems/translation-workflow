@@ -1,8 +1,10 @@
 baml-py==0.87.2
 dotenv==0.9.9
 google-genai==1.14.0
+ipykernel
 logging==0.4.9.6
 numpy==2.2.5
 pandas==2.2.3
+plotly==6.0.1
 streamlit==1.45.0
 typer==0.15.3
